@@ -15,9 +15,9 @@ def delete_old_playlists(directory):
 
 
 def create_playlist(directory):
-    mp4_files = sorted([f for f in os.listdir(directory) if f.endswith('.mp4')])
+    media_files = sorted([f for f in os.listdir(directory) if f.endswith('.mp4') or f.endswith('.mp3')])
 
-    if not mp4_files:
+    if not media_files:
         return 0
 
     playlist = Element('playlist', {'version': '1', 'xmlns': 'http://xspf.org/ns/0/'})
@@ -26,10 +26,10 @@ def create_playlist(directory):
 
     track_list = SubElement(playlist, 'trackList')
 
-    for mp4_file in mp4_files:
+    for media_file in media_files:
         track = SubElement(track_list, 'track')
         location = SubElement(track, 'location')
-        file_path = os.path.join(directory, mp4_file).replace('\\', '/')
+        file_path = os.path.join(directory, media_file).replace('\\', '/')
         encoded_path = quote(file_path, safe=":/")
         location.text = f'file:///{encoded_path}'
 
@@ -44,7 +44,7 @@ def create_playlist(directory):
     with open(playlist_filename, 'w', encoding='utf-8') as f:
         f.write(pretty_xml)
 
-    return len(mp4_files)
+    return len(media_files)
 
 
 def create_playlists_recursively(directory):
