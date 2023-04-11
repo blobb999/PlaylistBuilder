@@ -1,4 +1,5 @@
 import os
+import re
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import Tk, Button, Label, Entry, StringVar
@@ -14,8 +15,13 @@ def delete_old_playlists(directory):
                 os.remove(os.path.join(root, file))
 
 
+def natural_sort_key(s):
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', s)]
+
+
 def create_playlist(directory):
-    media_files = sorted([f for f in os.listdir(directory) if f.endswith('.mp4') or f.endswith('.mp3')])
+    media_files = sorted([f for f in os.listdir(directory) if f.endswith('.mp4') or f.endswith('.mp3')],
+                         key=natural_sort_key)
 
     if not media_files:
         return 0
