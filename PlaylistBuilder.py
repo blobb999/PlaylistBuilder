@@ -82,7 +82,7 @@ def combine_playlists(parent_directory):
     for root, dirs, files in os.walk(parent_directory, topdown=False):
         playlist_files = [file for file in files if file.endswith('.xspf')]
 
-        if len(playlist_files) > 1:
+        if len(playlist_files) >= 1:
             combined_tracks = []
 
             for file in playlist_files:
