@@ -75,7 +75,6 @@ def create_playlists_recursively(directory):
 
     messagebox.showinfo("Result", f"{playlist_count} playlists created with a total of {file_count} files.")
 
-
 def combine_playlists(parent_directory):
     combined_playlist_count = 0
 
@@ -95,25 +94,29 @@ def combine_playlists(parent_directory):
 
                     for track in tracks:
                         location = track.getElementsByTagName('location')[0]
-                        track_et = Element('track')
-                        location_et = SubElement(track_et, 'location')
-                        location_et.text = location.firstChild.data
-                        combined_tracks.append(track_et)
+                        combined_tracks.append(location.firstChild.data)
 
-            combined_tracks = natsorted(combined_tracks, key=lambda t: t.find('location').text)
+            # Remove duplicates from combined_tracks
+            combined_tracks = remove_duplicates(combined_tracks)
+
+            # Sort combined tracks by directory name and then by file name
+            combined_tracks = sorted(combined_tracks, key=lambda x: (os.path.dirname(x), os.path.basename(x)))
+
+            # Create a new playlist with unique tracks
             playlist = Element('playlist', {'version': '1', 'xmlns': 'http://xspf.org/ns/0/'})
             title = SubElement(playlist, 'title')
             title.text = 'Playlist'
             track_list = SubElement(playlist, 'trackList')
 
-            for track in combined_tracks:
-                track_list.append(track)
+            for track_path in combined_tracks:
+                track = SubElement(track_list, 'track')
+                location = SubElement(track, 'location')
+                location.text = track_path
 
             xml_string = tostring(playlist, 'utf-8')
             pretty_xml = minidom.parseString(xml_string).toprettyxml(indent='  ')
 
             folder_name = os.path.basename(root)
-            # Speichere die kombinierte Playlist im übergeordneten Verzeichnis
             parent_folder = os.path.dirname(root)
             combined_playlist_filename = os.path.join(parent_folder, f'{folder_name}.xspf')
 
@@ -123,6 +126,9 @@ def combine_playlists(parent_directory):
             combined_playlist_count += 1
 
     messagebox.showinfo("Result", f"{combined_playlist_count} combined playlists created.")
+
+def remove_duplicates(tracks):
+    return list(set(tracks))
 
 def remove_brackets(term):
     return term.replace("(", "").replace(")", "")
